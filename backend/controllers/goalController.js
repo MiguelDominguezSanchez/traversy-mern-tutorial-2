@@ -97,8 +97,9 @@ const deleteGoal = asyncHandler(async (req, res) => {
 		throw new Error('Goal not found')
 	}
 
+	// await remove method
 	await goal.remove()
-
+	// return id, in the frontend we are gonna need the id
 	res.status(200).json({ id: req.params.id })
 })
 
