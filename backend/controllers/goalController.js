@@ -39,14 +39,51 @@ const setGoal = asyncHandler(async (req, res) => {
 		// express error handler
 		throw new Error('Please add a text field')
 	}
-	res.status(200).json({ message: 'Set goals' })
+
+	// if it text
+	// await Goal has a create method
+	// and we wanna pass in an object
+	const goal = await Goal.create({
+		// set a text value
+		// which we can from req.body.text
+		text: req.body.text,
+	})
+	// for that json we are gonna set back that goal
+	res.status(200).json(goal)
 })
 
 // @desc    Update goal
 // @route   PUT /api/goals/:id
 // @access  Private
 const updateGoal = asyncHandler(async (req, res) => {
-	res.status(200).json({ message: `Update goal ${req.params.id}` })
+	// get the goal we wanna update
+	// await our goal model
+	// use findById
+	// the way we get the id is req.params.id, thats gonna be the url
+	const goal = await Goal.findById(req.params.id)
+
+	// check to make sure that we have it
+	if (!goal) {
+		// if not goal id provided
+		res.status(400)
+		// throw error
+		throw new Error('Goal not found')
+	}
+
+	// we wanna update it
+	// create our variable updatedGoal
+	// await Goal find by id and update
+	// mongo make it all really easy
+	// pass in an id, which is rew.params.id
+	// second argument is the data, re.body, which be our text
+	// last third argument with options,
+	// an options object with new set to true
+	//  which create if it doesn't exits
+	const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
+		new: true,
+	})
+	// respond return updatedGoal
+	res.status(200).json(updatedGoal)
 })
 
 // @desc    Delete goals
