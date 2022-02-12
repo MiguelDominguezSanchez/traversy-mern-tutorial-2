@@ -5,6 +5,19 @@ const mongoose = require('mongoose')
 const goalSchema = mongoose.Schema(
 	{
 		// pass an object with our fields
+
+		// call user
+		user: {
+			// we want this type to be an object id
+			type: mongoose.Schema.Types.ObjectId,
+			// required
+			required: true,
+			// which model is this object id pretend to
+			// and that is gonna be a user
+			// rer and the name of the model 'User'
+			ref: 'User',
+		},
+		// text
 		text: {
 			type: String,
 			require: [true, 'Please add a text value'],

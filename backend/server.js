@@ -13,7 +13,9 @@ const app = express()
 app.use(express.json()) // middleware use, express body parse for raw json
 app.use(express.urlencoded({ extended: false })) // for url encoded, passed an object with an extended value of false
 
+// Routes
 app.use('/api/goals', require('./routes/goalRoutes'))
+app.use('/api/users', require('./routes/userRoutes'))
 
 // error handler overwrite the default express error handler
 app.use(errorHandler)
