@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
 // bring in our user model
 const User = require('../models/userModel')
+const { resourceUsage } = require('process')
 
 // create the registerUser function
 
@@ -66,9 +67,12 @@ const registerUser = asyncHandler(async (req, res) => {
 	// user
 	if (user) {
 		res.status(201).json({
+			// general data
 			_id: user.id,
 			name: user.name,
 			email: user.email,
+			// create a token
+			token: generateToken(user._id),
 		})
 	} else {
 		res.status(400)
@@ -80,6 +84,36 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
+	// login functionality
+	// get the email and password sent  in the body
+	const { email, password } = req.body
+
+	// 'User' model findOne method by email
+	// Check for user email
+	const user = await User.findOne({ email })
+
+	// match the password
+	// Check the password
+	// we want to compare the passwords
+	// the password in the data base is hashed
+	// the password we wanna send to the login is not hashed
+	// we use a decrypt method called compare to do that
+	// it compare the plain text password in the first argument place, sent from the form or postman
+	// and secondly you wanna pass in the user that you  just fetched
+	// and the password which is hashed
+	if (user && (await bcrypt.compare(password, user.password))) {
+		// respond json with the same data back in the register
+		res.json({
+			_id: user.id,
+			name: user.name,
+			email: user.email,
+			token: generateToken(user._id),
+		})
+	} else {
+		res.status(400)
+		throw new Error('Invalid credentials')
+	}
+
 	res.json({ message: 'Login User' })
 })
 
@@ -89,6 +123,21 @@ const loginUser = asyncHandler(async (req, res) => {
 const getMe = asyncHandler(async (req, res) => {
 	res.json({ message: 'User data display' })
 })
+
+// Generate JWT
+const generateToken = (id) => {
+	// method called sign
+	// take the payload
+	// data we actually put in there
+	// its gonna be id that is passed into this function
+	// second its gonna be the secret
+
+	return jwt.sign({ id }, process.env.JWT_SECRET, {
+		// and the third argument options
+		// it expires in 30 days
+		expiresIn: '30d',
+	})
+}
 
 // export
 module.exports = {
